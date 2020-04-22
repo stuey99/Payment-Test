@@ -87,7 +87,7 @@ class paymentDates {
             // Calculate last day in month
             $paymentDate = strtotime('first day of +' . ($x + 1) . ' month');
             $paymentDate = strtotime('-1 days', $paymentDate);
-            // move to previous Friday if falls on weekend or bank holiday
+            // move to previous Friday if falls on weekend or bank holiday 
             $paymentDate = $this->checkPaymentDate($paymentDate);
 
             
@@ -99,9 +99,25 @@ class paymentDates {
             $line = array(date('M',$paymentDate),date('d-m-Y',$paymentDate),date('d-m-Y',$bonusDate));
             array_push($list, $line);
         }
+        // Write file
+        $this->writeFile($list);
 
         echo("Application completed\n");
     }
+
+    function writeFile($fileList) {
+        // Standard fputcsv command passing the array
+        echo("Opening file\n");
+
+        $fp = fopen('output.csv', 'w');
+        foreach ($fileList as $fields) {
+            fputcsv($fp, $fields);
+        }
+        echo("Closing file\n");
+
+        fclose($fp);
+    }
+
 
 
   }
