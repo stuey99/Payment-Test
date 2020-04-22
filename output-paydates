@@ -5,6 +5,17 @@ if (php_sapi_name() !== 'cli') {
     exit;
 }
 
+// Switch WARNINGS to errors.  This allows the try-catch to capture any write errors
+set_error_handler(function($errno, $errstr, $errfile, $errline, $errcontext) {
+    // error was suppressed with the @-operator
+    if (0 === error_reporting()) {
+        return false;
+    }
+
+    throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
+});
+
+
 class paymentDates {
 
     // Methods
@@ -81,8 +92,6 @@ class paymentDates {
             // move to following Tuesday if falls on weekend or bank holiday
             $bonusDate = $this->checkBonusDate($bonusDate);
 
-            echo(date('d-m-Y',$bonusDate));
-            echo("\n");
             
             // Calculate last day in month
             $paymentDate = strtotime('first day of +' . ($x + 1) . ' month');
@@ -91,8 +100,6 @@ class paymentDates {
             $paymentDate = $this->checkPaymentDate($paymentDate);
 
             
-            echo(date('d-m-Y',$paymentDate));
-            echo("\n");
 
 
             // Add line to array
@@ -109,13 +116,20 @@ class paymentDates {
         // Standard fputcsv command passing the array
         echo("Opening file\n");
 
-        $fp = fopen('output.csv', 'w');
-        foreach ($fileList as $fields) {
-            fputcsv($fp, $fields);
-        }
-        echo("Closing file\n");
+        try {
+            $fp = fopen('output.csv', 'w');
+            foreach ($fileList as $fields) {
 
-        fclose($fp);
+                fputcsv($fp, $fields);
+            }
+            echo("Closing file\n");
+
+            fclose($fp);
+        
+        } catch ( Exception $e ) {
+            // send error message if you can
+            echo("Error writing file.  Please ensure the file is not open in another application e.g. Excel\n");
+        } 
     }
 
 
