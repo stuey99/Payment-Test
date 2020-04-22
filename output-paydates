@@ -5,6 +5,48 @@ if (php_sapi_name() !== 'cli') {
     exit;
 }
 
-echo("init test");
+class paymentDates {
+
+    // Methods
+
+
+    function writePaymentDates() {
+        echo("Apllication started\n");
+
+        // Create headings for CSV
+        $list = array(array('Month','Pay Date','Bonus Date'));
+
+        for ($x = 1; $x <= 12; $x++) {
+
+            // Calculate 10th day in month for bonus
+            $bonusDate = strtotime('first day of +' . $x . ' month');
+            $bonusDate = strtotime('+9 days', $bonusDate);
+
+            echo(date('d-m-Y',$bonusDate));
+            echo("\n");
+            
+            // Calculate last day in month
+            $paymentDate = strtotime('first day of +' . ($x + 1) . ' month');
+            $paymentDate = strtotime('-1 days', $paymentDate);
+
+            
+            echo(date('d-m-Y',$paymentDate));
+            echo("\n");
+
+
+            // Add line to array
+            $line = array(date('M',$paymentDate),date('d-m-Y',$paymentDate),date('d-m-Y',$bonusDate));
+            array_push($list, $line);
+        }
+
+        echo("Apllication completed\n");
+    }
+
+
+  }
+
+
+$payment = new paymentDates();
+$payment -> writePaymentDates();
 
 ?>
